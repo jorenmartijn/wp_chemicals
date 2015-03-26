@@ -1,9 +1,8 @@
 <?php
 
-// THIS IS A COMMENT WITH A TEMPLATE ENTRY VestaChemical
 
 /**
- * Plugin Name.
+ * Chemical database class for WordPress.
  *
 * @package   Vestachemical
 * @author    Joren de Graaf jorendegraaf@gmail.com
@@ -109,7 +108,7 @@ class Vestachemical {
 		  );
 		  $args = array(
 		    'labels'        => $labels,
-		    'description'   => 'Holds our products and product specific data',
+		    'description'   => 'Holds our chemicals and chemical specific data',
 		    'public'        => true,
 		    'menu_position' => 5,
 		    'supports'      => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
