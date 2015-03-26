@@ -90,6 +90,7 @@ class Vestachemical {
 		add_action( 'chemical_category_edit_form_fields', array($this, 'chemical_taxonomy_edit_meta_field'), 10, 2 );
 		add_action( 'edited_category', array($this,'save_chemical_taxonomy_custom_meta'), 10, 2 );  
 		add_action( 'create_category', array($this,'save_chemical_taxonomy_custom_meta'), 10, 2 );
+		add_filter( 'pre_get_posts' , array($this,'include_custom_post_types') );
 
 	}
 	/*	Functionality for chemicals
@@ -121,6 +122,7 @@ class Vestachemical {
 		    'supports'      => array( 'title', 'editor', 'thumbnail', 'excerpt', 'tags' ),
 		    'has_archive'   => true,
 			'taxonomies' => array('post_tag'),
+			'exclude_from_search' => false,
 		  );
 
 		  register_post_type( 'chemicals', $args ); 
@@ -197,13 +199,32 @@ class Vestachemical {
 	</div>
 <?php
 	}
+	function include_custom_post_types( $query ) {
+	    $custom_post_type = get_query_var( 'post_type' );
+
+	    if ( is_archive() ) {
+	        if ( empty( $custom_post_type ) ) $query->set( 'post_type' , get_post_types() );
+	    }
+
+	    if ( is_search() ) {
+	        if ( empty( $custom_post_type ) ) {
+	            $query->set( 'post_type' , array(
+	                'post', 'page', 'chemicals'
+	                )
+	            );
+	        }
+	    }
+
+	    return $query;
+	}
+
 	function chemical_taxonomy_edit_meta_field($term) {
 	 
 		// put the term ID into a variable
 		$t_id = $term->term_id;
 	 
 		// retrieve the existing value(s) for this meta field. This returns an array
-		$term_meta = get_option( array($this, "taxonomy_$t_id") ); ?>
+		$term_meta = get_option( "taxonomy_$t_id"); ?>
 		<tr class="form-field">
 		<th scope="row" valign="top"><label for="term_meta[group_name_meta]"><?php _e( 'Group name', 'pluginname_textdomain' ); ?></label></th>
 			<td>
@@ -216,7 +237,7 @@ class Vestachemical {
 	function save_chemical_taxonomy_custom_meta( $term_id ) {
 		if ( isset( $_POST['term_meta'] ) ) {
 			$t_id = $term_id;
-			$term_meta = get_option( array($this, "taxonomy_$t_id") );
+			$term_meta = get_option( "taxonomy_$t_id");
 			$cat_keys = array_keys( $_POST['term_meta'] );
 			foreach ( $cat_keys as $key ) {
 				if ( isset ( $_POST['term_meta'][$key] ) ) {
@@ -224,7 +245,7 @@ class Vestachemical {
 				}
 			}
 			// Save the option array.
-			update_option( array($this, "taxonomy_$t_id"), $term_meta );
+			update_option( "taxonomy_$t_id", $term_meta );
 		}
 	}  
 
