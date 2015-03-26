@@ -89,7 +89,7 @@ class Vestachemical {
 		add_action( 'save_post', array($this, 'chemical_cas_box_save' ));
 	}
 	/*	Functionality for chemicals
-	 *
+	 *	@TODO Add an template engine to separate PHP and HTML code.
 	 */
 	function chemical_post_type() {
 		  $labels = array(
