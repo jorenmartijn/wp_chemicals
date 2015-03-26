@@ -86,7 +86,10 @@ class Vestachemical {
 		add_action( 'init', array($this,'chemical_taxonomy'), 0 );
 		add_action( 'add_meta_boxes', array($this, 'chemical_cas_box') );
 		add_action( 'save_post', array($this, 'chemical_cas_box_save' ));
-		add_action( 'chemical_taxonomy_add_form_fields', array($this,'chemical_taxonomy_brand_field'), 10, 2 );
+		add_action( 'chemical_category_add_form_fields', array($this,'chemical_taxonomy_group_field'), 10, 2 );
+		add_action( 'chemical_category_edit_form_fields', array($this, 'chemical_taxonomy_edit_meta_field'), 10, 2 );
+		add_action( 'edited_category', array($this,'save_chemical_taxonomy_custom_meta'), 10, 2 );  
+		add_action( 'create_category', array($this,'save_chemical_taxonomy_custom_meta'), 10, 2 );
 
 	}
 	/*	Functionality for chemicals
@@ -184,15 +187,15 @@ class Vestachemical {
 	/**
 	*	Add chemical category field for brand name
 	*/
-	function chemical_taxonomy_brand_field() {
+	function chemical_taxonomy_group_field() {
 	// this will add the custom meta field to the add new term page
 	?>
 	<div class="form-field">
-		<label for="chemical_brand_name[custom_term_meta]"><?php _e( 'Brand name', 'pluginname_textdomain' ); ?></label>
-		<input type="text" name="chemical_brand_name[custom_term_meta]" id="chemical_brand_name[custom_term_meta]" value="">
-		<p class="description"><?php _e( 'Enter a value for this field','pippin' ); ?></p>
+		<label for="term_meta[brand_name]"><?php _e( 'Group name', 'pluginname_textdomain' ); ?></label>
+		<input type="text" name="term_meta[group_name]" id="term_meta[group_name]" value="">
+		<p class="description"><?php _e( 'Enter a group name','pluginname_textdomain' ); ?></p>
 	</div>
-	<?php
+<?php
 	}
 	function chemical_taxonomy_edit_meta_field($term) {
 	 
@@ -200,16 +203,30 @@ class Vestachemical {
 		$t_id = $term->term_id;
 	 
 		// retrieve the existing value(s) for this meta field. This returns an array
-		$term_meta = get_option( "taxonomy_$t_id" ); ?>
+		$term_meta = get_option( array($this, "taxonomy_$t_id") ); ?>
 		<tr class="form-field">
-		<th scope="row" valign="top"><label for="term_meta[custom_term_meta]"><?php _e( 'Example meta field', 'pippin' ); ?></label></th>
+		<th scope="row" valign="top"><label for="term_meta[group_name_meta]"><?php _e( 'Group name', 'pluginname_textdomain' ); ?></label></th>
 			<td>
-				<input type="text" name="term_meta[custom_term_meta]" id="term_meta[custom_term_meta]" value="<?php echo esc_attr( $term_meta['custom_term_meta'] ) ? esc_attr( $term_meta['custom_term_meta'] ) : ''; ?>">
-				<p class="description"><?php _e( 'Enter a value for this field','pluginname_textdomain' ); ?></p>
+				<input type="text" name="term_meta[group_name_meta]" id="term_meta[group_name_meta]" value="<?php echo esc_attr( $term_meta['group_name_meta'] ) ? esc_attr( $term_meta['group_name_meta'] ) : ''; ?>">
+				<p class="description"><?php _e( 'Enter a group name','pluginname_textdomain' ); ?></p>
 			</td>
 		</tr>
 	<?php
 	}
+	function save_chemical_taxonomy_custom_meta( $term_id ) {
+		if ( isset( $_POST['term_meta'] ) ) {
+			$t_id = $term_id;
+			$term_meta = get_option( array($this, "taxonomy_$t_id") );
+			$cat_keys = array_keys( $_POST['term_meta'] );
+			foreach ( $cat_keys as $key ) {
+				if ( isset ( $_POST['term_meta'][$key] ) ) {
+					$term_meta[$key] = $_POST['term_meta'][$key];
+				}
+			}
+			// Save the option array.
+			update_option( array($this, "taxonomy_$t_id"), $term_meta );
+		}
+	}  
 
 	/**
 	 * Return the plugin slug.
