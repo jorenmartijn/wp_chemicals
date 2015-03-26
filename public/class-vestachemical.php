@@ -86,11 +86,15 @@ class Vestachemical {
 		add_action( 'init', array($this,'chemical_taxonomy'), 0 );
 		add_action( 'add_meta_boxes', array($this, 'chemical_cas_box') );
 		add_action( 'save_post', array($this, 'chemical_cas_box_save' ));
+		add_action( 'chemical_taxonomy_add_form_fields', array($this,'chemical_taxonomy_brand_field'), 10, 2 );
+
 	}
 	/*	Functionality for chemicals
 	 *	@TODO Add an template engine to separate PHP and HTML code.
 	 */
 	function chemical_post_type() {
+		  global $wp_taxonomies;
+   		  $wp_taxonomies['post_tag']->label = 'Applications';
 		  $labels = array(
 		    'name'               => _x( 'Chemicals', 'post type general name' ),
 		    'singular_name'      => _x( 'Chemicals', 'post type singular name' ),
@@ -104,16 +108,18 @@ class Vestachemical {
 		    'not_found'          => __( 'No chemicals found' ),
 		    'not_found_in_trash' => __( 'No chemicals found in the Trash' ), 
 		    'parent_item_colon'  => '',
-		    'menu_name'          => 'Chemicals'
+		    'menu_name'          => 'Chemicals',
 		  );
 		  $args = array(
 		    'labels'        => $labels,
 		    'description'   => 'Holds our chemicals and chemical specific data',
 		    'public'        => true,
 		    'menu_position' => 5,
-		    'supports'      => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
+		    'supports'      => array( 'title', 'editor', 'thumbnail', 'excerpt', 'tags' ),
 		    'has_archive'   => true,
+			'taxonomies' => array('post_tag'),
 		  );
+
 		  register_post_type( 'chemicals', $args ); 
 	}
 	/**
@@ -186,6 +192,22 @@ class Vestachemical {
 		<input type="text" name="chemical_brand_name[custom_term_meta]" id="chemical_brand_name[custom_term_meta]" value="">
 		<p class="description"><?php _e( 'Enter a value for this field','pippin' ); ?></p>
 	</div>
+	<?php
+	}
+	function chemical_taxonomy_edit_meta_field($term) {
+	 
+		// put the term ID into a variable
+		$t_id = $term->term_id;
+	 
+		// retrieve the existing value(s) for this meta field. This returns an array
+		$term_meta = get_option( "taxonomy_$t_id" ); ?>
+		<tr class="form-field">
+		<th scope="row" valign="top"><label for="term_meta[custom_term_meta]"><?php _e( 'Example meta field', 'pippin' ); ?></label></th>
+			<td>
+				<input type="text" name="term_meta[custom_term_meta]" id="term_meta[custom_term_meta]" value="<?php echo esc_attr( $term_meta['custom_term_meta'] ) ? esc_attr( $term_meta['custom_term_meta'] ) : ''; ?>">
+				<p class="description"><?php _e( 'Enter a value for this field','pluginname_textdomain' ); ?></p>
+			</td>
+		</tr>
 	<?php
 	}
 
