@@ -156,15 +156,17 @@ class Vestachemical {
 	    if ( !current_user_can( 'edit_post', $post_id ) )
 	    return;
 	  }
-	  $chemical_cas = $_POST['chemical_cas_box'];
+	  $chemical_cas = $_POST['chemical_cas'];
 	  update_post_meta( $post_id, 'chemical_cas_box', $chemical_cas );
 	}
-
+	/** 
+	*	Adding the edit and new chemical screen box for CAS numbers
+	*/
 	function chemical_cas_box_content( $post ) {
 	  wp_nonce_field( plugin_basename( __FILE__ ), array($this, 'chemical_cas_box_content_nonce' ));
 		$value = get_post_meta( $post->ID, 'chemical_cas_box', true );
   echo '<label for="chemical_cas_box"></label>';
-	  echo '<input type="text" id="chemical_cas_box" name="chemical_cas_box" placeholder="enter a cas number" value="' . esc_attr( $value ) . '"/>';
+	  echo '<input type="text" id="chemical_cas" name="chemical_cas" placeholder="enter a cas number" value="' . esc_attr( $value ) . '"/>';
 	}
 	function chemical_taxonomy() {
 	  $labels = array(
