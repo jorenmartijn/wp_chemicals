@@ -201,8 +201,11 @@ class Vestachemical {
 		<input type="text" name="term_meta[group_name]" id="term_meta[group_name]" value="">
 		<p class="description"><?php _e( 'Enter a group name','pluginname_textdomain' ); ?></p>
 	</div>
-<?php
+	<?php
 	}
+	/**
+	*	Include custom post types in main search function
+	*/
 	function include_custom_post_types( $query ) {
 	    $custom_post_type = get_query_var( 'post_type' );
 
